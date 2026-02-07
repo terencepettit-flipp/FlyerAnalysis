@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Flyer Run Report</title>
+    <title>Report Generator (Upload Only)</title>
     <style>
       :root {
         --bg: #0b0f14;
@@ -20,7 +20,7 @@
       * { box-sizing: border-box; }
       body {
         margin: 0;
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
         background: radial-gradient(1200px 700px at 30% -10%, #142033, var(--bg));
         color: var(--text);
       }
@@ -31,29 +31,23 @@
         padding: 18px;
       }
 
-      .topbar {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        padding: 14px;
+      .panel {
         border: 1px solid var(--border);
-        background: linear-gradient(180deg, rgba(17,24,35,0.92), rgba(17,24,35,0.78));
-        backdrop-filter: blur(10px);
         border-radius: 16px;
+        background: rgba(17,24,35,0.9);
+        padding: 14px;
       }
 
       .title {
         display: flex;
-        align-items: baseline;
         justify-content: space-between;
         gap: 12px;
         margin-bottom: 12px;
       }
 
       .title h1 {
-        font-size: 16px;
         margin: 0;
-        letter-spacing: 0.2px;
+        font-size: 16px;
       }
 
       .hint {
@@ -63,7 +57,7 @@
 
       form {
         display: grid;
-        grid-template-columns: 1.2fr 1fr 1fr auto;
+        grid-template-columns: 1.1fr 1fr 1fr auto;
         gap: 10px;
         align-items: end;
       }
@@ -71,8 +65,8 @@
       label {
         display: grid;
         gap: 6px;
-        font-size: 12px;
         color: var(--muted);
+        font-size: 12px;
       }
 
       input {
@@ -84,10 +78,6 @@
         color: var(--text);
         outline: none;
       }
-      input:focus {
-        border-color: rgba(77,163,255,0.7);
-        box-shadow: 0 0 0 3px rgba(77,163,255,0.15);
-      }
 
       button {
         padding: 10px 14px;
@@ -98,11 +88,6 @@
         cursor: pointer;
         font-weight: 600;
       }
-      button:hover { background: rgba(77,163,255,0.22); }
-      button:disabled {
-        opacity: 0.55;
-        cursor: not-allowed;
-      }
 
       .status {
         margin-top: 10px;
@@ -110,65 +95,25 @@
         border-radius: 12px;
         border: 1px solid var(--border);
         background: rgba(15,22,32,0.65);
-        font-size: 13px;
         color: var(--muted);
+        font-size: 13px;
         display: none;
       }
+
       .status.show { display: block; }
-      .status.error { color: var(--danger); border-color: rgba(255,107,107,0.45); }
       .status.ok { color: var(--ok); border-color: rgba(76,217,100,0.35); }
+      .status.error { color: var(--danger); border-color: rgba(255,107,107,0.45); }
 
-      .content {
-        margin-top: 16px;
-        border: 1px dashed rgba(35,48,68,0.9);
-        border-radius: 16px;
-        padding: 18px;
-        min-height: 240px;
-        color: var(--muted);
-      }
+      .hidden { display: none !important; }
 
-      .kv {
+      .meta {
         margin-top: 10px;
-        display: grid;
-        grid-template-columns: 160px 1fr;
-        gap: 6px 12px;
+        color: var(--muted);
         font-size: 13px;
+        line-height: 1.5;
       }
 
-      .pill {
-        display: inline-flex;
-        gap: 8px;
-        align-items: center;
-        padding: 6px 10px;
-        border-radius: 999px;
-        border: 1px solid var(--border);
-        background: rgba(17,24,35,0.6);
-        color: var(--muted);
-        font-size: 12px;
-      }
-
-      .row {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 12px;
-        align-items: center;
-        justify-content: space-between;
-      }
-
-      .small {
-        font-size: 12px;
-        color: var(--muted);
-      }
-
-      code {
-        background: rgba(255,255,255,0.06);
-        padding: 2px 6px;
-        border-radius: 8px;
-        border: 1px solid rgba(255,255,255,0.08);
-      }
-
-      @media (max-width: 820px) {
+      @media (max-width: 860px) {
         form { grid-template-columns: 1fr; }
       }
     </style>
@@ -176,10 +121,10 @@
 
   <body>
     <div class="wrap">
-      <div class="topbar">
+      <div class="panel">
         <div class="title">
-          <h1>Flyer Run Report Generator</h1>
-          <div class="hint">Enter parameters → Generate report</div>
+          <h1>Flyer Run Report Setup</h1>
+          <div class="hint">Upload-only mode</div>
         </div>
 
         <form id="paramsForm">
@@ -198,146 +143,75 @@
             <input id="endDate" type="date" />
           </label>
 
-          <button id="generateBtn" type="submit">Generate report</button>
+          <div>
+            <input id="excelFile" type="file" accept=".xlsx,.xls" class="hidden" />
+            <button id="uploadBtn" type="button">Upload Excel</button>
+          </div>
         </form>
 
         <div id="status" class="status"></div>
-
-        <div class="row">
-          <div class="pill"><span>Mode:</span> <strong>stub</strong></div>
-          <div class="small">
-            API hooks live in <code>generateReport(params)</code>
-          </div>
-        </div>
-      </div>
-
-      <div id="report" class="content">
-        Report area (empty until you generate).
+        <div id="excelMeta" class="meta">No Excel file uploaded yet.</div>
       </div>
     </div>
 
+    <!-- Parse Excel in-browser -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
-      // ---------- Utilities ----------
+      const state = {
+        workbook: null,
+        fileName: null,
+        sheetNames: [],
+      };
+
       function $(id) { return document.getElementById(id); }
 
-      function setStatus(message, kind /* "ok" | "error" | "" */) {
+      function setStatus(msg, kind = "") {
         const el = $("status");
-        if (!message) {
+        if (!msg) {
           el.textContent = "";
           el.className = "status";
           return;
         }
-        el.textContent = message;
-        el.className = `status show ${kind || ""}`.trim();
+        el.textContent = msg;
+        el.className = `status show ${kind}`.trim();
       }
 
-      function parseFlyerRunId(value) {
-        const trimmed = String(value || "").trim();
-        if (!trimmed) return null;
-        // Only allow digits, but tolerate whitespace.
-        if (!/^\d+$/.test(trimmed)) return NaN;
-        const n = Number(trimmed);
-        return Number.isSafeInteger(n) && n > 0 ? n : NaN;
+      function setMeta(text) {
+        $("excelMeta").innerHTML = text;
       }
 
-      function parseDate(value) {
-        // value from <input type="date"> is "YYYY-MM-DD" or "".
-        if (!value) return null;
-        // Force UTC midnight to avoid timezone surprises when displaying.
-        const d = new Date(value + "T00:00:00Z");
-        return Number.isNaN(d.getTime()) ? NaN : d;
-      }
+      $("uploadBtn").addEventListener("click", () => {
+        $("excelFile").click();
+      });
 
-      function formatISODate(d) {
-        // d assumed valid Date
-        const yyyy = d.getUTCFullYear();
-        const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
-        const dd = String(d.getUTCDate()).padStart(2, "0");
-        return `${yyyy}-${mm}-${dd}`;
-      }
+      $("excelFile").addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-      function escapeHtml(s) {
-        return String(s)
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#39;");
-      }
-
-      // ---------- Core ----------
-      async function generateReport(params) {
-        // This is where you'll call APIs and assemble the report.
-        // For now, we just echo the parameters into the report area.
-
-        const reportEl = $("report");
-        reportEl.innerHTML = `
-          <div style="color: var(--text); font-weight: 700; margin-bottom: 8px;">
-            Parameters received
-          </div>
-          <div class="kv">
-            <div>Flyer Run ID</div><div><code>${escapeHtml(params.flyerRunId)}</code></div>
-            <div>Start date</div><div><code>${escapeHtml(params.startDate)}</code></div>
-            <div>End date</div><div><code>${escapeHtml(params.endDate)}</code></div>
-          </div>
-
-          <div style="margin-top: 14px; color: var(--muted);">
-            Next: replace <code>generateReport(params)</code> with your API calls and rendering logic.
-          </div>
-        `;
-
-        // Example structure for later:
-        // const dataA = await fetchJson(`/api/a?flyerRunId=${params.flyerRunId}...`);
-        // const dataB = await fetchJson(`/api/b?...`);
-        // reportEl.innerHTML = renderReport({ dataA, dataB, params });
-      }
-
-      $("paramsForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        setStatus("", "");
-        const btn = $("generateBtn");
-        btn.disabled = true;
-        btn.textContent = "Generating…";
+        if (!/\.(xlsx|xls)$/i.test(file.name)) {
+          setStatus("Please choose an Excel file (.xlsx or .xls).", "error");
+          return;
+        }
 
         try {
-          const flyerRunIdParsed = parseFlyerRunId($("flyerRunId").value);
-          const startDateParsed = parseDate($("startDate").value);
-          const endDateParsed = parseDate($("endDate").value);
+          setStatus("Reading Excel file...", "");
+          const buffer = await file.arrayBuffer();
+          const wb = XLSX.read(buffer, { type: "array" });
 
-          // Validation
-          if (flyerRunIdParsed === null || Number.isNaN(flyerRunIdParsed)) {
-            setStatus("Flyer Run ID must be a positive integer.", "error");
-            return;
-          }
-          if (startDateParsed === null || Number.isNaN(startDateParsed)) {
-            setStatus("Start date is required.", "error");
-            return;
-          }
-          if (endDateParsed === null || Number.isNaN(endDateParsed)) {
-            setStatus("End date is required.", "error");
-            return;
-          }
-          if (endDateParsed.getTime() < startDateParsed.getTime()) {
-            setStatus("End date must be on or after start date.", "error");
-            return;
-          }
+          state.workbook = wb;
+          state.fileName = file.name;
+          state.sheetNames = wb.SheetNames || [];
 
-          const params = {
-            flyerRunId: String(flyerRunIdParsed),
-            startDate: formatISODate(startDateParsed),
-            endDate: formatISODate(endDateParsed),
-          };
+          setMeta(`
+            <strong style="color:#e8eef7">File:</strong> ${state.fileName}<br />
+            <strong style="color:#e8eef7">Sheets:</strong> ${state.sheetNames.length}<br />
+            <strong style="color:#e8eef7">Names:</strong> ${state.sheetNames.join(", ")}
+          `);
 
-          setStatus("Inputs validated. Building report…", "");
-          await generateReport(params);
-          setStatus("Report generated.", "ok");
+          setStatus("Excel file uploaded and parsed successfully.", "ok");
         } catch (err) {
           console.error(err);
-          setStatus("Something went wrong while generating the report. See console for details.", "error");
-        } finally {
-          btn.disabled = false;
-          btn.textContent = "Generate report";
+          setStatus("Failed to parse Excel file.", "error");
         }
       });
     </script>
